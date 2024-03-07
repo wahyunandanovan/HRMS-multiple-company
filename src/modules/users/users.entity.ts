@@ -2,8 +2,8 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
-  JoinColumn,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
 import { UserRole } from './role.enum';
 import { Companies } from '../companies/companies.entity';
@@ -13,7 +13,7 @@ export class Users {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ unique: true })
+  @Column()
   username: string;
 
   @Column()
@@ -22,17 +22,17 @@ export class Users {
   @Column({
     type: 'enum',
     enum: UserRole,
-    default: UserRole.EMPLOYEE,
+    default: UserRole.ADMIN,
   })
   role: UserRole;
 
   @Column()
-  sessions: string;
+  email: string;
 
   @Column({ default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
 
-  @ManyToOne(() => Companies, { nullable: true })
-  @JoinColumn({ name: 'company_id' })
-  company: Companies;
+  @ManyToMany(() => Companies, (company) => company.users, { nullable: true })
+  @JoinTable()
+  companies: Companies[];
 }

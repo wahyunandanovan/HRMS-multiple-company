@@ -1,5 +1,12 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  ManyToMany,
+} from 'typeorm';
 import { Departments } from '../departments/departments.entity';
+import { Users } from '../users/users.entity';
 
 @Entity()
 export class Companies {
@@ -23,4 +30,7 @@ export class Companies {
 
   @OneToMany(() => Departments, (department) => department.company)
   departments: Departments[];
+
+  @ManyToMany(() => Users, (user) => user.companies)
+  users: Users[];
 }

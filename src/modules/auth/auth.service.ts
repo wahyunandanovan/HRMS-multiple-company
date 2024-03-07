@@ -1,22 +1,76 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
-import { compare } from 'bcrypt';
-import { Users } from '../users/users.entity';
+import { compareSync } from 'bcrypt';
+import { LoginDto } from './auth.dto';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private usersService: UsersService,
+    private jwtService: JwtService,
+  ) {}
 
-  async validateUser(
-    username: string,
-    password: string,
-  ): Promise<Users | null> {
-    //  const user = await this.usersService.findByUsername(username);
+  async validateUser(username: string, password: string): Promise<any> {
+    const user = await this.usersService.findByUsername(username);
 
-    //  if (user && (await compare(password, user.password))) {
-    //    return user;
-    //  }
-
+    if (user && compareSync(password, user.password)) {
+      const { password, ...result } = user;
+      return result;
+    }
     return null;
+  }
+
+  async register(
+    username: string,
+    email: string,
+    password: string,
+  ): Promise<any> {
+    const user = await this.usersService.create({
+      username,
+      password,
+      email,
+    });
+
+    const data = {
+      email: user.email,
+      username: user.username,
+      role: user.role,
+    };
+
+    return {
+      data: {
+        message: 'Berhasil mendaftar!',
+        access_token: this.jwtService.sign(data),
+      },
+    };
+  }
+
+  async login(body: LoginDto) {
+    const { email, password } = body;
+    const user = await this.usersService.findByEmail(email);
+    if (!user) {
+      throw new UnauthorizedException(
+        `Pengguna dengan email ${email} tidak ditemukan!`,
+      );
+    }
+    const isPasswordValid = await compareSync(password, user.password);
+
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Password salah!');
+    }
+
+    const data = {
+      email: user.email,
+      username: user.username,
+      role: user.role,
+    };
+
+    return {
+      data: {
+        message: 'Berhasil masuk!',
+        access_token: this.jwtService.sign(data),
+      },
+    };
   }
 }

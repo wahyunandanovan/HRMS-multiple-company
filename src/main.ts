@@ -5,6 +5,7 @@ import { ValidationPipe } from '@nestjs/common/pipes';
 import { join } from 'path';
 import * as express from 'express';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { apiVersion } from './constant/apiVersion';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -14,7 +15,7 @@ async function bootstrap() {
     origin: '*',
   });
   app.use(express.json());
-  app.setGlobalPrefix('/api/v1/');
+  app.setGlobalPrefix(`/api/${apiVersion}/`);
   app.use('/assets', express.static(join(__dirname, '..', 'assets')));
   app.useGlobalPipes(
     new ValidationPipe({
@@ -30,8 +31,8 @@ async function bootstrap() {
   );
 
   const config = new DocumentBuilder()
-    .setTitle('ASIA PIAWAY')
-    .setDescription('Base url: /api/v1')
+    .setTitle('DOKUMENTASI API PIAWAY')
+    .setDescription(`Base url: /api/${apiVersion}`)
     .setVersion('1.0')
     .addBearerAuth(
       {
@@ -49,7 +50,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
 
   SwaggerModule.setup('/docs', app, document, {
-    customSiteTitle: 'ASIA GOLF API DOCS',
+    customSiteTitle: 'DOKUMENTASI API PIAWAY',
     customfavIcon:
       'https://www.mandirikartukredit.com/uploads/media/merchant/key-visual-hot-offer/default/key-visual-hot-offer/asian-golf--logo-150x150.jpg',
     customJs: [
