@@ -9,7 +9,7 @@ export class Salaries {
   @ManyToOne(() => Employees, (employee) => employee.salaries)
   employee: Employees;
 
-  @Column('decimal', { precision: 10, scale: 2 })
+  @Column()
   amount: number;
 
   @Column()

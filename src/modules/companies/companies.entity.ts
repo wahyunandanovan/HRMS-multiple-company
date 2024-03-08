@@ -9,6 +9,7 @@ import {
 import { Departments } from '../departments/departments.entity';
 import { Users } from '../users/users.entity';
 import { Plans } from '../plans/plan.entity';
+import { CompanyPlanStatus } from './companies.enum';
 
 @Entity()
 export class Companies {
@@ -38,4 +39,14 @@ export class Companies {
 
   @ManyToOne(() => Plans, (plan) => plan.companies)
   plan: Plans;
+
+  @Column({
+    type: 'enum',
+    enum: CompanyPlanStatus,
+    default: CompanyPlanStatus.ONGOING,
+  })
+  plan_status: CompanyPlanStatus;
+
+  @Column({ nullable: true })
+  plan_end_date: Date;
 }

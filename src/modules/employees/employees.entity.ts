@@ -17,6 +17,9 @@ export class Employees {
   @Column()
   full_name: string;
 
+  @Column()
+  image: string;
+
   @Column({ unique: true })
   email: string;
 
@@ -26,13 +29,15 @@ export class Employees {
   @Column()
   address: string;
 
-  @ManyToOne(() => Departments, (department) => department.employees)
+  @ManyToOne(() => Departments, (department) => department.employees, {
+    nullable: true,
+  })
   department: Departments;
 
-  @OneToMany(() => Leaves, (leave) => leave.employee)
+  @OneToMany(() => Leaves, (leave) => leave.employee, { nullable: true })
   leaves: Leaves[];
 
-  @OneToMany(() => Salaries, (salary) => salary.employee)
+  @OneToMany(() => Salaries, (salary) => salary.employee, { nullable: true })
   salaries: Salaries[];
 
   @Column({ default: () => 'CURRENT_TIMESTAMP' })

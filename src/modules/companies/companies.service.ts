@@ -1,10 +1,12 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { LessThanOrEqual, Repository } from 'typeorm';
 import { Companies } from './companies.entity';
+import { CompanyPlanStatus } from './companies.enum';
 
 @Injectable()
 export class CompaniesService {
+  private readonly logger = new Logger(CompaniesService.name);
   constructor(
     @InjectRepository(Companies)
     private readonly companiesRepository: Repository<Companies>,
@@ -49,5 +51,27 @@ export class CompaniesService {
     }
 
     await this.companiesRepository.remove(existingCompany);
+  }
+
+  async updateExpiredPlanStatus(): Promise<void> {
+    const currentDate = new Date();
+    const companiesToUpdate = await this.companiesRepository.find({
+      where: {
+        plan_status: CompanyPlanStatus.ONGOING,
+        plan_end_date: LessThanOrEqual(currentDate),
+      },
+    });
+    if (companiesToUpdate.length) {
+      this.logger.log(
+        `Scheduler : ${companiesToUpdate.length} Company expired.`,
+      );
+    } else {
+      this.logger.log(`Scheduler : Nothing experied company`);
+    }
+
+    for (const company of companiesToUpdate) {
+      company.plan_status = CompanyPlanStatus.EXPIRED;
+      await this.companiesRepository.save(company);
+    }
   }
 }

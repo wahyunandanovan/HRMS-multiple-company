@@ -15,6 +15,9 @@ export class Plans {
   @Column()
   price: number;
 
+  @Column()
+  max_employee: number;
+
   @Column({ default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
 

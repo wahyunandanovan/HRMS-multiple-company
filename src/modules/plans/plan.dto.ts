@@ -16,6 +16,11 @@ export class CreatePlanDto {
   @IsNotEmpty({ message: 'Harga plan tidak boleh kosong' })
   @IsNumber({}, { message: 'Harga plan harus berupa angka' })
   price: number;
+
+  @ApiProperty({ description: 'Maksimal karyawan' })
+  @IsNotEmpty({ message: 'Maksimal karyawan tidak boleh kosong' })
+  @IsNumber({}, { message: 'Maksimal karyawan harus berupa angka' })
+  max_employee: number;
 }
 
 export class UpdatePlanDto extends CreatePlanDto {}

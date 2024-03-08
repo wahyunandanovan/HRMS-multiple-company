@@ -16,6 +16,9 @@ export class Departments {
   @Column()
   department_name: string;
 
+  @Column()
+  standart_salary: number;
+
   @ManyToOne(() => Companies, (company) => company.departments)
   company: Companies;
 

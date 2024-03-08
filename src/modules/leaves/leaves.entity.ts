@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
 import { Employees } from '../employees/employees.entity';
+import { LeaveType } from './leaves.enum';
 
 @Entity()
 export class Leaves {
@@ -17,6 +18,16 @@ export class Leaves {
 
   @Column()
   status: string;
+
+  @Column({
+    type: 'enum',
+    enum: LeaveType,
+    default: 'sakit',
+  })
+  type: string;
+
+  @Column({ type: 'text', nullable: true })
+  description: string;
 
   @Column({ default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;

@@ -1,9 +1,11 @@
-import { Module, Session } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { AppService } from './app.service';
 import { AppController } from './app.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MulterModule } from '@nestjs/platform-express';
 import { APP_FILTER } from '@nestjs/core';
+import { ScheduleModule } from '@nestjs/schedule';
+import { ErrorFilter } from './helper/error.filter';
 
 //module
 import { UsersModule } from './modules/users/users.module';
@@ -12,6 +14,10 @@ import { EmployeesModule } from './modules/employees/employees.module';
 import { LeavesModule } from './modules/leaves/leaves.module';
 import { SalariesModule } from './modules/salaries/salaries.module';
 import { DepartmentsModule } from './modules/departments/departments.module';
+import { PlansModule } from './modules/plans/plans.module';
+import { SeederModule } from './modules/seeder/seeder.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { SchedulerModule as CronModule } from './modules/scheduler/scheduler.module';
 //entity
 import { Users } from './modules/users/users.entity';
 import { Companies } from './modules/companies/companies.entity';
@@ -19,11 +25,7 @@ import { Employees } from './modules/employees/employees.entity';
 import { Departments } from './modules/departments/departments.entity';
 import { Leaves } from './modules/leaves/leaves.entity';
 import { Salaries } from './modules/salaries/salaries.entity';
-import { AuthModule } from './modules/auth/auth.module';
-import { ErrorFilter } from './helper/error.filter';
-import { SeederModule } from './modules/seeder/seeder.module';
 import { Plans } from './modules/plans/plan.entity';
-import { PlansModule } from './modules/plans/plans.module';
 
 @Module({
   imports: [
@@ -43,7 +45,6 @@ import { PlansModule } from './modules/plans/plans.module';
         Departments,
         Leaves,
         Salaries,
-        Session,
       ],
     }),
     SeederModule,
@@ -55,6 +56,8 @@ import { PlansModule } from './modules/plans/plans.module';
     DepartmentsModule,
     LeavesModule,
     SalariesModule,
+    ScheduleModule.forRoot(),
+    CronModule,
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_FILTER, useClass: ErrorFilter }],

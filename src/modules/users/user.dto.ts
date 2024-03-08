@@ -7,7 +7,11 @@ export class CreateUserDto {
   @IsNotEmpty({ message: 'Username tidak boleh kosong' })
   username: string;
 
-  @ApiProperty({ description: 'User Role' })
+  @ApiProperty({
+    description: 'User Role',
+    enum: UserRole,
+    default: UserRole.ADMIN,
+  })
   @IsNotEmpty({ message: 'Role tidak boleh kosong' })
   role: UserRole;
 
