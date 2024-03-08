@@ -21,6 +21,9 @@ import { Leaves } from './modules/leaves/leaves.entity';
 import { Salaries } from './modules/salaries/salaries.entity';
 import { AuthModule } from './modules/auth/auth.module';
 import { ErrorFilter } from './helper/error.filter';
+import { SeederModule } from './modules/seeder/seeder.module';
+import { Plans } from './modules/plans/plan.entity';
+import { PlansModule } from './modules/plans/plans.module';
 
 @Module({
   imports: [
@@ -35,6 +38,7 @@ import { ErrorFilter } from './helper/error.filter';
       entities: [
         Users,
         Companies,
+        Plans,
         Employees,
         Departments,
         Leaves,
@@ -42,8 +46,10 @@ import { ErrorFilter } from './helper/error.filter';
         Session,
       ],
     }),
+    SeederModule,
     AuthModule,
     UsersModule,
+    PlansModule,
     CompaniesModule,
     EmployeesModule,
     DepartmentsModule,
