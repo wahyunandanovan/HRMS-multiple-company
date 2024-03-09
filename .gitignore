@@ -33,3 +33,11 @@ lerna-debug.log*
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+
+
+#app
+.env
+
+# file image 
+public/images/company/*
+public/images/user/*
