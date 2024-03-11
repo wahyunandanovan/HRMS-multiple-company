@@ -12,13 +12,6 @@ import { apiVersion } from './constant/apiVersion';
 import { appConstant } from './constant/appConstant';
 
 async function bootstrap() {
-  console.log({
-    host: process.env.DATABASE_HOST,
-    port: parseInt(process.env.DATABASE_PORT),
-    username: process.env.DATABASE_USER,
-    // password: process.env.DATABASE_PASSWORD,
-    database: process.env.DATABASE_NAME,
-  });
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const port = process.env.PORT || 8080;
 

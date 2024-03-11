@@ -61,7 +61,7 @@ export class CompaniesController {
   )
   async create(
     @Body() body: CreateCompanyDto,
-    @UploadedFile() img: any,
+    @UploadedFile() img,
   ): Promise<Companies> {
     let imageFileName: string | null = null;
 
@@ -93,7 +93,7 @@ export class CompaniesController {
   async update(
     @Param('id') id: string,
     @Body() body: UpdateCompanyDto,
-    @UploadedFile() img: any,
+    @UploadedFile() img,
   ): Promise<Companies> {
     let imageFileName: string | null = null;
 

@@ -12,7 +12,7 @@ export const filterFile = (req: any, file: any, cb: any): void => {
     return cb(new BadRequestException('File harus berupa gambar.'), false);
   }
 
-  if (file.size > 5 * 1024 * 1024) {
+  if (file.size > 3 * 1024 * 1024) {
     return cb(
       new BadRequestException('Ukuran file terlalu besar. Maksimal 5MB.'),
       false,

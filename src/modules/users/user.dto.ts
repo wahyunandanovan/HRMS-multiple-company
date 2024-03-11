@@ -24,6 +24,14 @@ export class CreateUserDto {
   @IsNotEmpty({ message: 'Password tidak boleh kosong' })
   @MinLength(6, { message: 'Password harus memiliki minimal 6 karakter' })
   password: string;
+
+  @ApiProperty({
+    description: 'Gambar',
+    type: 'string',
+    format: 'binary',
+    required: false,
+  })
+  image: string;
 }
 
 export class UpdateUserDto extends CreateUserDto {}
