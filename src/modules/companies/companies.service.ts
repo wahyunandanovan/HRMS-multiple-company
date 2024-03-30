@@ -99,15 +99,6 @@ export class CompaniesService {
       throw new NotFoundException('Perusahaan tidak ditemukan');
     }
 
-    if (updateCompany.image) {
-      if (existingCompany.image) {
-        unlink(`public/images/company/${existingCompany.image}`, () =>
-          this.logger.log('Image success to replace'),
-        );
-      }
-      existingCompany.image = updateCompany.image;
-    }
-
     Object.assign(existingCompany, updateCompany);
 
     return await this.companiesRepository.save(existingCompany);

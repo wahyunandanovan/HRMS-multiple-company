@@ -27,12 +27,7 @@ export class CreateCompanyDto {
   @IsUUID('4', { message: 'Plan id harus berupa uuid v4' })
   plan_id: string;
 
-  @ApiProperty({
-    description: 'Gambar',
-    type: 'string',
-    format: 'binary',
-    required: false,
-  })
+  @ApiProperty({ default: null })
   image: string;
 }
 
@@ -53,11 +48,6 @@ export class UpdateCompanyDto {
   @IsUUID('4', { message: 'Plan id harus berupa uuid v4' })
   plan_id: string;
 
-  @ApiProperty({
-    description: 'Gambar',
-    type: 'string',
-    format: 'binary',
-    required: false,
-  })
+  @ApiProperty({ default: null })
   image: string;
 }

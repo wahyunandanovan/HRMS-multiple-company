@@ -6,18 +6,13 @@ import {
   Param,
   Patch,
   Post,
-  UploadedFile,
   UseGuards,
-  UseInterceptors,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '../../guards/auth.guard';
 import { CompaniesService } from './companies.service';
 import { Companies } from './companies.entity';
 import { CreateCompanyDto, UpdateCompanyDto } from './companies.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { filterFile, getFileName } from 'src/helper/fileService';
 import { companyPaginateConfig } from './companies.paginate.config';
 import {
   ApiPaginationQuery,
@@ -47,65 +42,16 @@ export class CompaniesController {
   }
 
   @Post()
-  @ApiConsumes('multipart/form-data')
-  @UseInterceptors(
-    FileInterceptor('image', {
-      storage: diskStorage({
-        destination: 'public/images/company',
-        filename: (req, file, cb) => {
-          cb(null, getFileName(file));
-        },
-      }),
-      fileFilter: filterFile,
-    }),
-  )
-  async create(
-    @Body() body: CreateCompanyDto,
-    @UploadedFile() img,
-  ): Promise<Companies> {
-    let imageFileName: string | null = null;
-
-    if (img) {
-      imageFileName = img.filename;
-    }
-
-    const companyData: Partial<CreateCompanyDto> = {
-      ...body,
-      image: imageFileName,
-    };
-
-    return this.companiesService.create(companyData);
+  async create(@Body() body: CreateCompanyDto): Promise<Companies> {
+    return this.companiesService.create(body);
   }
 
   @Patch(':id')
-  @ApiConsumes('multipart/form-data')
-  @UseInterceptors(
-    FileInterceptor('image', {
-      storage: diskStorage({
-        destination: 'public/images/company',
-        filename: (req, file, cb) => {
-          cb(null, getFileName(file));
-        },
-      }),
-      fileFilter: filterFile,
-    }),
-  )
   async update(
     @Param('id') id: string,
     @Body() body: UpdateCompanyDto,
-    @UploadedFile() img,
   ): Promise<Companies> {
-    let imageFileName: string | null = null;
-
-    if (img) {
-      imageFileName = img.filename;
-    }
-
-    const companyData: Partial<CreateCompanyDto> = {
-      ...body,
-      image: imageFileName,
-    };
-    return this.companiesService.update(id, companyData);
+    return this.companiesService.update(id, body);
   }
 
   @Delete(':id')

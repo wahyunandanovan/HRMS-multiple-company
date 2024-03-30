@@ -26,9 +26,7 @@ export class CreateUserDto {
   password: string;
 
   @ApiProperty({
-    description: 'Gambar',
-    type: 'string',
-    format: 'binary',
+    default: null,
     required: false,
   })
   image: string;
