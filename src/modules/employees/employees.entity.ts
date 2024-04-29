@@ -17,16 +17,16 @@ export class Employees {
   @Column()
   full_name: string;
 
-  @Column()
+  @Column({ nullable: true })
   image: string;
 
-  @Column({ unique: true })
+  @Column({ unique: true, nullable: true })
   email: string;
 
-  @Column()
+  @Column({ nullable: true })
   phone_number: string;
 
-  @Column()
+  @Column({ nullable: true })
   address: string;
 
   @ManyToOne(() => Departments, (department) => department.employees, {

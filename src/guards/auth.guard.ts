@@ -5,6 +5,8 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
+import * as jwt from 'jsonwebtoken';
+import { jwtConstants } from 'src/constant/jwtConstant';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -18,8 +20,19 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException('Akses tidak diizinkan');
     }
 
+    try {
+      const decodedToken: any = jwt.verify(token, jwtConstants.secret);
+
+      if (decodedToken.exp < Date.now() / 1000) {
+        throw new UnauthorizedException('Token sudah kadaluwarsa');
+      }
+    } catch (error) {
+      throw new UnauthorizedException('Token tidak valid');
+    }
+
     return true;
   }
+
   private extractTokenFromHeader(request: Request): string | undefined {
     const authHeader = request.headers['authorization'];
     if (authHeader && authHeader.startsWith('Bearer ')) {

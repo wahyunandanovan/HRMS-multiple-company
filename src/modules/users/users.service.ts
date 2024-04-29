@@ -35,7 +35,11 @@ export class UsersService {
   }
 
   async create(user: Partial<Users>): Promise<Users> {
-    const { email, username, password } = user;
+    const { email, username, role, password } = user;
+
+    if (!Object.values(UserRole).includes(role)) {
+      throw new ConflictException('Role tidak valid');
+    }
 
     const existingEmailUser = await this.findByEmail(email);
     const existingUsernameUser = await this.findByUsername(username);
@@ -59,6 +63,10 @@ export class UsersService {
 
   async update(id: string, updateUser: Partial<Users>): Promise<Users> {
     const existingUser = await this.findById(id);
+
+    if (updateUser.role && !Object.values(UserRole).includes(updateUser.role)) {
+      throw new ConflictException('Role tidak valid');
+    }
 
     if (!existingUser) {
       throw new NotFoundException('User tidak ditemukan');

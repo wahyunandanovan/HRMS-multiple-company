@@ -1,5 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, IsUUID } from 'class-validator';
+import {
+  IsDate,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUUID,
+  IsUrl,
+  Matches,
+} from 'class-validator';
 
 export class CreateCompanyDto {
   @ApiProperty({ description: 'Nama Perusahaan' })
@@ -22,32 +30,42 @@ export class CreateCompanyDto {
   @IsUUID('4', { message: 'User id harus berupa uuid v4' })
   user_id: string;
 
-  @ApiProperty({ description: 'Plan id' })
-  @IsNotEmpty({ message: 'Plan id tidak boleh kosong' })
-  @IsUUID('4', { message: 'Plan id harus berupa uuid v4' })
-  plan_id: string;
-
-  @ApiProperty({ default: null })
+  @ApiProperty()
+  @IsUrl(undefined, { message: 'Image harus berupa alamat url' })
+  @IsOptional()
   image: string;
 }
 
 export class UpdateCompanyDto {
   @ApiProperty({ description: 'Nama Perusahaan', required: false })
   @IsString({ message: 'Nama perusahaan harus berupa teks' })
+  @IsOptional()
   company_name: string;
 
   @ApiProperty({ description: 'Alamat', required: false })
   @IsString({ message: 'Alamat harus berupa teks' })
+  @IsOptional()
   address: string;
 
   @ApiProperty({ description: 'Nomor Kontak', required: false })
   @IsString({ message: 'Nomor kontak harus berupa teks' })
+  @IsOptional()
   contact_number: string;
 
-  @ApiProperty({ description: 'Plan id', required: false })
-  @IsUUID('4', { message: 'Plan id harus berupa uuid v4' })
-  plan_id: string;
-
-  @ApiProperty({ default: null })
+  @ApiProperty()
+  @IsOptional()
+  @IsUrl(undefined, { message: 'Image harus berupa alamat url' })
   image: string;
+}
+
+export class ChangePlanDto {
+  @ApiProperty({
+    description: 'Tanggal kedaluwarsa baru rencana',
+    example: '2024-04-01',
+  })
+  @IsNotEmpty({ message: 'Tanggal kedaluwarsa tidak boleh kosong' })
+  @Matches(/^\d{4}-\d{2}-\d{2}$/, {
+    message: 'Format tanggal harus yyyy-mm-dd',
+  })
+  endDate: Date;
 }

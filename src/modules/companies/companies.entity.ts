@@ -9,8 +9,6 @@ import {
 } from 'typeorm';
 import { Departments } from '../departments/departments.entity';
 import { Users } from '../users/users.entity';
-import { Plans } from '../plans/plan.entity';
-import { CompanyPlanStatus } from './companies.enum';
 
 @Entity()
 export class Companies {
@@ -45,22 +43,8 @@ export class Companies {
   @Column()
   user_id: string;
 
-  @ManyToOne(() => Plans, (plan) => plan.companies)
-  @JoinColumn({ name: 'plan_id' })
-  plan: Plans;
-
   @Column({ nullable: true })
-  plan_id: string;
-
-  @Column({
-    type: 'enum',
-    enum: CompanyPlanStatus,
-    default: CompanyPlanStatus.ONGOING,
-  })
-  plan_status: CompanyPlanStatus;
-
-  @Column({ nullable: true })
-  plan_end_date: Date;
+  company_plan_id: string;
 
   @BeforeInsert()
   generateCode() {

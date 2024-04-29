@@ -1,5 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
-import { Companies } from '../companies/companies.entity';
+import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
 @Entity()
 export class Plans {
@@ -20,7 +19,4 @@ export class Plans {
 
   @Column({ default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
-
-  @OneToMany(() => Companies, (company) => company.plan, { nullable: true })
-  companies: Companies[];
 }

@@ -12,7 +12,11 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '../../guards/auth.guard';
 import { CompaniesService } from './companies.service';
 import { Companies } from './companies.entity';
-import { CreateCompanyDto, UpdateCompanyDto } from './companies.dto';
+import {
+  ChangePlanDto,
+  CreateCompanyDto,
+  UpdateCompanyDto,
+} from './companies.dto';
 import { companyPaginateConfig } from './companies.paginate.config';
 import {
   ApiPaginationQuery,
@@ -57,5 +61,14 @@ export class CompaniesController {
   @Delete(':id')
   async delete(@Param('id') id: string): Promise<object> {
     return this.companiesService.delete(id);
+  }
+
+  @Patch(':id/change-plan/:planId')
+  async changePlan(
+    @Param('id') id: string,
+    @Param('planId') planId: string,
+    @Body() endDate: ChangePlanDto,
+  ): Promise<Companies> {
+    return this.companiesService.changePlan(id, planId, endDate);
   }
 }

@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { Response } from 'express';
 import { IncomingMessage } from 'http';
+import * as fs from 'fs';
 
 export const getStatusCode = <T>(exception: T): number => {
   return exception instanceof HttpException
@@ -27,6 +28,10 @@ export class ErrorFilter<T> implements ExceptionFilter {
     const request = ctx.getRequest<IncomingMessage>();
     const statusCode = getStatusCode<T>(exception);
     const message = getErrorMessage<T>(exception);
+
+    if (request && request['file'] && fs.existsSync(request['file'].path)) {
+      fs.unlinkSync(request['file'].path);
+    }
 
     response.status(statusCode).json({
       error: {

@@ -14,7 +14,7 @@ export const filterFile = (req: any, file: any, cb: any): void => {
 
   if (file.size > 3 * 1024 * 1024) {
     return cb(
-      new BadRequestException('Ukuran file terlalu besar. Maksimal 5MB.'),
+      new BadRequestException('Ukuran file terlalu besar. Maksimal 3MB.'),
       false,
     );
   }

@@ -56,18 +56,21 @@ export class PlansService {
     const planSeed: Partial<Plans>[] = [
       {
         name: 'Free Plan',
+        max_employee: 10,
         description: 'Plan Gratis untuk mencoba aplikasi selama 7 hari',
         price: 0,
       },
       {
         name: 'Basic Plan',
-        description: 'Plan Dasar untuk UMKM dengan 100 karyawan',
-        price: 25000,
+        max_employee: 25,
+        description: 'Plan Dasar untuk UMKM dengan 25 karyawan',
+        price: 35000,
       },
       {
         name: 'Pro Plan',
-        description: 'Plan Pro untuk UMKM dengan 200 karyawan',
-        price: 50000,
+        max_employee: 100,
+        description: 'Plan Pro untuk UMKM dengan 100 karyawan',
+        price: 125000,
       },
     ];
 

@@ -6,9 +6,7 @@ import {
   Param,
   Patch,
   Post,
-  UploadedFile,
   UseGuards,
-  UseInterceptors,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import {
@@ -19,15 +17,12 @@ import {
 } from 'nestjs-paginate';
 import { Users } from './users.entity';
 import { UserPaginateConfig } from './user.paginate.config';
-import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
-import { CreateUserDto, UpdateUserDto } from './user.dto';
+import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
+import { UpdateUserDto } from './user.dto';
 import { AuthGuard } from '../../guards/auth.guard';
 import { RolesGuard } from 'src/guards/roles.guard';
 import { Roles } from 'src/guards/roles.decorator';
-import { diskStorage } from 'multer';
 import { UserRole } from './role.enum';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { filterFile, getFileName } from 'src/helper/fileService';
 
 @ApiBearerAuth('access-token')
 @UseGuards(AuthGuard, RolesGuard)
@@ -50,66 +45,20 @@ export class UsersController {
   }
 
   @Post()
-  @ApiConsumes('multipart/form-data')
-  @UseInterceptors(
-    FileInterceptor('image', {
-      storage: diskStorage({
-        destination: 'public/images/user',
-        filename: (req, file, cb) => {
-          cb(null, getFileName(file));
-        },
-      }),
-      fileFilter: filterFile,
-    }),
-  )
   @Roles(UserRole.PIAWAY_ADMIN)
-  @ApiBody({ type: CreateUserDto })
-  async create(
-    @Body() body: CreateUserDto,
-    @UploadedFile() img,
-  ): Promise<Users> {
-    let imageFileName: string | null = null;
-
-    if (img) {
-      imageFileName = img.filename;
-    }
-    const userData: Partial<CreateUserDto> = {
-      ...body,
-      image: imageFileName,
-    };
-    return this.userService.create(userData);
+  @ApiBody({ type: UpdateUserDto })
+  async create(@Body() body: UpdateUserDto): Promise<Users> {
+    return this.userService.create(body);
   }
 
   @Patch(':id')
-  @ApiConsumes('multipart/form-data')
-  @UseInterceptors(
-    FileInterceptor('image', {
-      storage: diskStorage({
-        destination: 'public/images/user',
-        filename: (req, file, cb) => {
-          cb(null, getFileName(file));
-        },
-      }),
-      fileFilter: filterFile,
-    }),
-  )
   @Roles(UserRole.PIAWAY_ADMIN)
   @ApiBody({ type: UpdateUserDto })
   async update(
     @Param('id') id: string,
     @Body() body: UpdateUserDto,
-    @UploadedFile() img,
   ): Promise<Users> {
-    let imageFileName: string | null = null;
-
-    if (img) {
-      imageFileName = img.filename;
-    }
-    const userData: Partial<CreateUserDto> = {
-      ...body,
-      image: imageFileName,
-    };
-    return this.userService.update(id, userData);
+    return this.userService.update(id, body);
   }
 
   @Delete(':id')

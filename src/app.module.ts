@@ -26,6 +26,9 @@ import { Departments } from './modules/departments/departments.entity';
 import { Leaves } from './modules/leaves/leaves.entity';
 import { Salaries } from './modules/salaries/salaries.entity';
 import { Plans } from './modules/plans/plan.entity';
+import { FilesModule } from './modules/files/files.module';
+import { CompanyPlanModule } from './modules/company-plan/company-plan.module';
+import { CompanyPlan } from './modules/company-plan/company-plan.entity';
 
 @Module({
   imports: [
@@ -47,15 +50,18 @@ import { Plans } from './modules/plans/plan.entity';
         Departments,
         Leaves,
         Salaries,
+        CompanyPlan,
       ],
     }),
     ScheduleModule.forRoot(),
     CronModule,
     SeederModule,
+    FilesModule,
     AuthModule,
     PlansModule,
     UsersModule,
     CompaniesModule,
+    CompanyPlanModule,
     EmployeesModule,
     DepartmentsModule,
     LeavesModule,

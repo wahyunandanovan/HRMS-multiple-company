@@ -2,18 +2,19 @@ import {
   ConflictException,
   Injectable,
   Logger,
+  NotAcceptableException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { LessThanOrEqual, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Companies } from './companies.entity';
-import { CompanyPlanStatus } from './companies.enum';
 import { Plans } from '../plans/plan.entity';
 import { CreateCompanyDto } from './companies.dto';
 import { PaginateQuery, Paginated, paginate } from 'nestjs-paginate';
 import { companyPaginateConfig } from './companies.paginate.config';
 import { Users } from '../users/users.entity';
-import { unlink } from 'fs';
+import { CompanyPlan } from '../company-plan/company-plan.entity';
+import { CompanyPlanService } from '../company-plan/company-plan.service';
 
 @Injectable()
 export class CompaniesService {
@@ -25,8 +26,13 @@ export class CompaniesService {
     @InjectRepository(Plans)
     private readonly planRepository: Repository<Plans>,
 
+    @InjectRepository(CompanyPlan)
+    private readonly companyPlanRepository: Repository<CompanyPlan>,
+
     @InjectRepository(Users)
     private readonly userRepository: Repository<Users>,
+
+    private readonly companyPlanService: CompanyPlanService,
   ) {}
 
   async findAll(query: PaginateQuery): Promise<Paginated<Companies>> {
@@ -49,10 +55,6 @@ export class CompaniesService {
       where: { company_name: company.company_name },
     });
 
-    const existingPlan = await this.planRepository.findOne({
-      where: { id: company.plan_id },
-    });
-
     const existingUser = await this.userRepository.findOne({
       where: { id: company.user_id },
     });
@@ -61,32 +63,23 @@ export class CompaniesService {
       throw new ConflictException('Nama perusahaan sudah digunakan.');
     }
 
-    if (!existingPlan) {
-      throw new ConflictException(
-        `Plan dengan id ${company.plan_id} tidak ditemukan`,
-      );
-    }
-
     if (!existingUser) {
       throw new ConflictException(
         `Pengguna dengan id ${company.user_id} tidak ditemukan`,
       );
     }
 
-    const planEndDate = new Date();
-    planEndDate.setDate(planEndDate.getDate() + 7);
-
-    const companyData = {
-      ...company,
-      plan_id: existingPlan.id,
-      plan_status: CompanyPlanStatus.ONGOING,
-      plan_end_date: planEndDate,
-    };
-
-    const newCompany = this.companiesRepository.create(companyData);
+    const newCompany = this.companiesRepository.create(company);
     newCompany.generateCode();
-    const results = await this.companiesRepository.save(newCompany);
-    return { ...results, plan: existingPlan, user: existingUser };
+    const savedCompany = await this.companiesRepository.save(newCompany);
+
+    const companyPlan = await this.createFreePlan(savedCompany.id);
+
+    savedCompany.company_plan_id = companyPlan.id;
+
+    const updatedCompany = await this.companiesRepository.save(savedCompany);
+
+    return { ...updatedCompany, user: existingUser };
   }
 
   async update(
@@ -97,6 +90,10 @@ export class CompaniesService {
 
     if (!existingCompany) {
       throw new NotFoundException('Perusahaan tidak ditemukan');
+    }
+
+    if (updateCompany.company_plan_id) {
+      throw new NotAcceptableException('Tidak di perbolehkan merubah plan_id');
     }
 
     Object.assign(existingCompany, updateCompany);
@@ -114,25 +111,98 @@ export class CompaniesService {
     return { statusCode: 200, message: 'Berhasil menghapus perusahaan' };
   }
 
-  async updateExpiredPlanStatus(): Promise<void> {
-    const currentDate = new Date();
-    const companiesToUpdate = await this.companiesRepository.find({
-      where: {
-        plan_status: CompanyPlanStatus.ONGOING,
-        plan_end_date: LessThanOrEqual(currentDate),
-      },
+  async changePlan(
+    companyId: string,
+    selectedPlanId: string,
+    planEndDate: string | any,
+  ): Promise<Companies> {
+    const company = await this.companiesRepository.findOne({
+      where: { id: companyId },
     });
-    if (companiesToUpdate.length) {
-      this.logger.log(
-        `Scheduler : ${companiesToUpdate.length} Company expired.`,
-      );
-    } else {
-      this.logger.log(`Scheduler : Nothing experied company`);
+
+    if (!company) {
+      throw new NotFoundException(`Perusahaan tidak ditemukan`);
     }
 
-    for (const company of companiesToUpdate) {
-      company.plan_status = CompanyPlanStatus.EXPIRED;
-      await this.companiesRepository.save(company);
+    const selectedPlan = await this.planRepository.findOne({
+      where: { id: selectedPlanId },
+    });
+
+    if (!selectedPlan) {
+      throw new NotFoundException('Plan baru tidak ditemukan');
     }
+
+    if (selectedPlan.price === 0) {
+      throw new NotAcceptableException('Tidak dapat mengubah ke plan gratis');
+    }
+
+    await this.deactivatePlan(company.company_plan_id);
+
+    const newCompanyPlan = await this.companyPlanService.create({
+      reference_plan_id: selectedPlanId,
+      company_id: companyId,
+      start_date: new Date(),
+      end_date: planEndDate,
+      is_active: true,
+    });
+
+    company.company_plan_id = newCompanyPlan.id;
+
+    return this.companiesRepository.save(company);
+  }
+
+  async createFreePlan(companyId: string): Promise<CompanyPlan> {
+    const freePlan = await this.planRepository.findOne({
+      where: { price: 0 },
+    });
+
+    const planEndDate = new Date();
+    planEndDate.setDate(planEndDate.getDate() + 7);
+
+    return await this.companyPlanService.create({
+      reference_plan_id: freePlan.id,
+      company_id: companyId,
+      start_date: new Date(),
+      end_date: planEndDate,
+      is_active: true,
+    });
+  }
+
+  async deactivatePlan(companyPlanId: string): Promise<void> {
+    const companyPlan = await this.companyPlanRepository.findOne({
+      where: { id: companyPlanId },
+    });
+
+    if (!companyPlan) {
+      throw new NotFoundException('Plan tidak ditemukan');
+    }
+
+    companyPlan.is_active = false;
+
+    await this.companyPlanRepository.save(companyPlan);
+  }
+
+  async updateExpiredPlanStatus(): Promise<void> {
+    //   const currentDate = new Date();
+    //   const companiesToUpdate = await this.companiesRepository.find({
+    //     where: {
+    //       plan_status: CompanyPlanStatus.ONGOING,
+    //       plan_end_date: LessThanOrEqual(currentDate),
+    //     },
+    //   });
+    //   if (companiesToUpdate.length) {
+    //     this.logger.log(
+    //       `Scheduler : ${companiesToUpdate.length} Company expired.`,
+    //     );
+    //   } else {
+    //     this.logger.log(`Scheduler : Nothing experied company`);
+    //   }
+
+    //   for (const company of companiesToUpdate) {
+    //     company.plan_status = CompanyPlanStatus.EXPIRED;
+    //     await this.companiesRepository.save(company);
+    //   }
+    // }
+    return null;
   }
 }
