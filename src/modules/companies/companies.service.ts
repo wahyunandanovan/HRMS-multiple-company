@@ -69,17 +69,17 @@ export class CompaniesService {
       );
     }
 
+    if (company.company_plan_id) {
+      throw new NotAcceptableException(
+        'Tidak di perbolehkan merubah company_plan_id',
+      );
+    }
+
     const newCompany = this.companiesRepository.create(company);
     newCompany.generateCode();
     const savedCompany = await this.companiesRepository.save(newCompany);
 
-    const companyPlan = await this.createFreePlan(savedCompany.id);
-
-    savedCompany.company_plan_id = companyPlan.id;
-
-    const updatedCompany = await this.companiesRepository.save(savedCompany);
-
-    return { ...updatedCompany, user: existingUser };
+    return { ...savedCompany, user: existingUser };
   }
 
   async update(
@@ -93,7 +93,9 @@ export class CompaniesService {
     }
 
     if (updateCompany.company_plan_id) {
-      throw new NotAcceptableException('Tidak di perbolehkan merubah plan_id');
+      throw new NotAcceptableException(
+        'Tidak di perbolehkan merubah company_plan_id',
+      );
     }
 
     Object.assign(existingCompany, updateCompany);
@@ -114,19 +116,19 @@ export class CompaniesService {
   async changePlan(
     companyId: string,
     selectedPlanId: string,
-    planEndDate: string | any,
-  ): Promise<Companies> {
+    body: string | any,
+  ): Promise<CompanyPlan> {
     const company = await this.companiesRepository.findOne({
       where: { id: companyId },
+    });
+
+    const selectedPlan = await this.planRepository.findOne({
+      where: { id: selectedPlanId },
     });
 
     if (!company) {
       throw new NotFoundException(`Perusahaan tidak ditemukan`);
     }
-
-    const selectedPlan = await this.planRepository.findOne({
-      where: { id: selectedPlanId },
-    });
 
     if (!selectedPlan) {
       throw new NotFoundException('Plan baru tidak ditemukan');
@@ -137,49 +139,29 @@ export class CompaniesService {
     }
 
     await this.deactivatePlan(company.company_plan_id);
-
     const newCompanyPlan = await this.companyPlanService.create({
       reference_plan_id: selectedPlanId,
       company_id: companyId,
       start_date: new Date(),
-      end_date: planEndDate,
+      end_date: body?.endDate,
       is_active: true,
     });
 
     company.company_plan_id = newCompanyPlan.id;
 
-    return this.companiesRepository.save(company);
-  }
-
-  async createFreePlan(companyId: string): Promise<CompanyPlan> {
-    const freePlan = await this.planRepository.findOne({
-      where: { price: 0 },
-    });
-
-    const planEndDate = new Date();
-    planEndDate.setDate(planEndDate.getDate() + 7);
-
-    return await this.companyPlanService.create({
-      reference_plan_id: freePlan.id,
-      company_id: companyId,
-      start_date: new Date(),
-      end_date: planEndDate,
-      is_active: true,
-    });
+    await this.companiesRepository.save(company);
+    return newCompanyPlan;
   }
 
   async deactivatePlan(companyPlanId: string): Promise<void> {
     const companyPlan = await this.companyPlanRepository.findOne({
-      where: { id: companyPlanId },
+      where: { id: companyPlanId, is_active: true },
     });
 
-    if (!companyPlan) {
-      throw new NotFoundException('Plan tidak ditemukan');
+    if (companyPlan) {
+      companyPlan.is_active = false;
+      await this.companyPlanRepository.save(companyPlan);
     }
-
-    companyPlan.is_active = false;
-
-    await this.companyPlanRepository.save(companyPlan);
   }
 
   async updateExpiredPlanStatus(): Promise<void> {

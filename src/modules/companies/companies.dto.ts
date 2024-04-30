@@ -34,6 +34,8 @@ export class CreateCompanyDto {
   @IsUrl(undefined, { message: 'Image harus berupa alamat url' })
   @IsOptional()
   image: string;
+
+  company_plan_id: string;
 }
 
 export class UpdateCompanyDto {
@@ -67,5 +69,5 @@ export class ChangePlanDto {
   @Matches(/^\d{4}-\d{2}-\d{2}$/, {
     message: 'Format tanggal harus yyyy-mm-dd',
   })
-  endDate: Date;
+  endDate: string;
 }

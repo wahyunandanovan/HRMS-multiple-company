@@ -24,6 +24,7 @@ import {
   PaginateQuery,
   Paginated,
 } from 'nestjs-paginate';
+import { CompanyPlan } from '../company-plan/company-plan.entity';
 
 @ApiBearerAuth('access-token')
 @UseGuards(AuthGuard)
@@ -68,7 +69,7 @@ export class CompaniesController {
     @Param('id') id: string,
     @Param('planId') planId: string,
     @Body() endDate: ChangePlanDto,
-  ): Promise<Companies> {
+  ): Promise<CompanyPlan> {
     return this.companiesService.changePlan(id, planId, endDate);
   }
 }

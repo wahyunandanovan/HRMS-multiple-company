@@ -31,11 +31,11 @@ export class CompanyPlanController {
     return this.companyPlanService.findById(id);
   }
 
-  @Post()
-  @ApiBody({ type: CreateCompanyPlanDto })
-  async create(@Body() body: CreateCompanyPlanDto): Promise<CompanyPlan> {
-    return this.companyPlanService.create(body);
-  }
+  // @Post()
+  // @ApiBody({ type: CreateCompanyPlanDto })
+  // async create(@Body() body: CreateCompanyPlanDto): Promise<CompanyPlan> {
+  //   return this.companyPlanService.create(body);
+  // }
 
   @Patch(':id')
   @ApiBody({ type: UpdateCompanyPlanDto })
