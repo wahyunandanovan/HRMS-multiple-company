@@ -6,6 +6,7 @@ import {
   ManyToOne,
   JoinColumn,
   BeforeInsert,
+  DeleteDateColumn,
 } from 'typeorm';
 import { Departments } from '../departments/departments.entity';
 import { Users } from '../users/users.entity';
@@ -45,6 +46,9 @@ export class Companies {
 
   @Column({ nullable: true })
   company_plan_id: string;
+
+  @DeleteDateColumn({ nullable: true, default: null })
+  deleted_at: Date;
 
   @BeforeInsert()
   generateCode() {

@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import { compareSync } from 'bcrypt';
 import { LoginDto } from './auth.dto';
+import { UserRole } from '../users/role.enum';
 
 @Injectable()
 export class AuthService {
@@ -30,6 +31,7 @@ export class AuthService {
       username,
       password,
       email,
+      role: UserRole.ADMIN,
     });
 
     const data = {
@@ -60,7 +62,7 @@ export class AuthService {
       throw new UnauthorizedException('Password salah!');
     }
 
-    const data = {
+    const jwtValue = {
       email: user.email,
       username: user.username,
       role: user.role,
@@ -69,7 +71,7 @@ export class AuthService {
     return {
       data: {
         message: 'Berhasil masuk!',
-        access_token: this.jwtService.sign(data),
+        access_token: this.jwtService.sign(jwtValue),
       },
     };
   }

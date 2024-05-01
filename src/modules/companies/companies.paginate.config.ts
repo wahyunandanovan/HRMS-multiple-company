@@ -7,5 +7,6 @@ export const companyPaginateConfig: PaginateConfig<any> = {
   relations: ['user'],
   filterableColumns: {
     code: [FilterOperator.EQ],
+    user_id: [FilterOperator.EQ],
   },
 };

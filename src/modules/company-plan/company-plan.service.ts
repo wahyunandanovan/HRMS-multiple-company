@@ -17,13 +17,20 @@ export class CompanyPlanService {
     private readonly companyRepository: Repository<Companies>,
   ) {}
 
-  async findAll(): Promise<CompanyPlan[] | any> {
-    const data = await this.companyPlanRepository.find();
+  async findAll(companyId: string): Promise<CompanyPlan[] | any> {
+    const data = await this.companyPlanRepository.find({
+      where: { company_id: companyId },
+    });
     return { data };
   }
 
-  async findById(id: string): Promise<CompanyPlan | undefined> {
-    return this.companyPlanRepository.findOne({ where: { id } });
+  async findById(
+    companyId: string,
+    id: string,
+  ): Promise<CompanyPlan | undefined> {
+    return this.companyPlanRepository.findOne({
+      where: { id, company_id: companyId },
+    });
   }
 
   async create(body: CreateCompanyPlanDto): Promise<CompanyPlan> {
@@ -55,10 +62,11 @@ export class CompanyPlanService {
   }
 
   async update(
+    companyId: string,
     id: string,
     updateCompanyPlan: UpdateCompanyPlanDto,
   ): Promise<CompanyPlan> {
-    const existingCompanyPlan = await this.findById(id);
+    const existingCompanyPlan = await this.findById(companyId, id);
 
     if (!existingCompanyPlan) {
       throw new NotFoundException(`Company plan dengan ${id} tidak ditemukan`);
@@ -69,13 +77,14 @@ export class CompanyPlanService {
     return this.companyPlanRepository.save(existingCompanyPlan);
   }
 
-  async delete(id: string): Promise<void> {
-    const existingCompanyPlan = await this.findById(id);
+  async delete(companyId: string, id: string): Promise<any> {
+    const existingCompanyPlan = await this.findById(companyId, id);
 
     if (!existingCompanyPlan) {
       throw new NotFoundException(`Company plan dengan ${id} tidak ditemukan`);
     }
 
     await this.companyPlanRepository.remove(existingCompanyPlan);
+    return { message: 'Berhasil dihapus!' };
   }
 }

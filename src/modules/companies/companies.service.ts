@@ -42,7 +42,7 @@ export class CompaniesService {
   async findById(id: string): Promise<Companies | undefined> {
     const company = await this.companiesRepository.findOne({
       where: { id },
-      relations: ['user', 'plan'],
+      relations: ['user'],
     });
     if (!company) {
       throw new NotFoundException(`Perusahaan dengan id ${id} tidak ditemukan`);
@@ -109,7 +109,10 @@ export class CompaniesService {
     if (!existingCompany) {
       throw new NotFoundException('Perusahaan tidak ditemukan');
     }
-    await this.companiesRepository.remove(existingCompany);
+
+    existingCompany.deleted_at = new Date();
+    await this.companiesRepository.save(existingCompany);
+
     return { statusCode: 200, message: 'Berhasil menghapus perusahaan' };
   }
 
@@ -122,6 +125,10 @@ export class CompaniesService {
       where: { id: companyId },
     });
 
+    const exitingFreeCompanyPlan = await this.companyPlanRepository.findOne({
+      where: { company_id: companyId, price: 0 },
+    });
+
     const selectedPlan = await this.planRepository.findOne({
       where: { id: selectedPlanId },
     });
@@ -131,11 +138,18 @@ export class CompaniesService {
     }
 
     if (!selectedPlan) {
-      throw new NotFoundException('Plan baru tidak ditemukan');
+      throw new NotFoundException('Plan tidak ditemukan');
     }
 
-    if (selectedPlan.price === 0) {
+    if (exitingFreeCompanyPlan && selectedPlan.price === 0) {
       throw new NotAcceptableException('Tidak dapat mengubah ke plan gratis');
+    }
+
+    const endDate = new Date(body?.endDate);
+    if (endDate <= new Date()) {
+      throw new NotAcceptableException(
+        'endDate harus lebih besar dari tanggal hari ini',
+      );
     }
 
     await this.deactivatePlan(company.company_plan_id);

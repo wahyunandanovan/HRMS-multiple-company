@@ -25,6 +25,9 @@ import {
   Paginated,
 } from 'nestjs-paginate';
 import { CompanyPlan } from '../company-plan/company-plan.entity';
+import { RolesGuard } from '../../guards/roles.guard';
+import { Roles } from '../../guards/roles.decorator';
+import { UserRole } from '../users/role.enum';
 
 @ApiBearerAuth('access-token')
 @UseGuards(AuthGuard)
@@ -65,6 +68,8 @@ export class CompaniesController {
   }
 
   @Patch(':id/change-plan/:planId')
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.PIAWAY_ADMIN)
   async changePlan(
     @Param('id') id: string,
     @Param('planId') planId: string,
