@@ -1,7 +1,7 @@
 import { PaginateConfig } from 'nestjs-paginate';
 
-export const EmployeesPaginateConfig: PaginateConfig<any> = {
+export const SalariesPaginateConfig: PaginateConfig<any> = {
   sortableColumns: ['created_at'],
   defaultSortBy: [['created_at', 'DESC']],
-  relations: ['department'],
+  relations: ['employee'],
 };

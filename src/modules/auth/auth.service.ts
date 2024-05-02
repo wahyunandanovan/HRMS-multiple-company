@@ -34,7 +34,8 @@ export class AuthService {
       role: UserRole.ADMIN,
     });
 
-    const data = {
+    const value = {
+      id: user.id,
       email: user.email,
       username: user.username,
       role: user.role,
@@ -43,7 +44,7 @@ export class AuthService {
     return {
       data: {
         message: 'Berhasil mendaftar!',
-        access_token: this.jwtService.sign(data),
+        access_token: this.jwtService.sign(value),
       },
     };
   }
@@ -63,6 +64,7 @@ export class AuthService {
     }
 
     const jwtValue = {
+      id: user.id,
       email: user.email,
       username: user.username,
       role: user.role,

@@ -15,6 +15,8 @@ import { companyPaginateConfig } from './companies.paginate.config';
 import { Users } from '../users/users.entity';
 import { CompanyPlan } from '../company-plan/company-plan.entity';
 import { CompanyPlanService } from '../company-plan/company-plan.service';
+import { Request as ExpressRequest } from 'express';
+import { UserRole } from '../users/role.enum';
 
 @Injectable()
 export class CompaniesService {
@@ -35,8 +37,21 @@ export class CompaniesService {
     private readonly companyPlanService: CompanyPlanService,
   ) {}
 
-  async findAll(query: PaginateQuery): Promise<Paginated<Companies>> {
-    return paginate(query, this.companiesRepository, companyPaginateConfig);
+  async findAll(
+    req: ExpressRequest,
+    query: PaginateQuery,
+  ): Promise<Paginated<Companies>> {
+    const user = req['user'];
+    let additionalQuery = {};
+
+    if (user.role !== UserRole.PIAWAY_ADMIN) {
+      additionalQuery = { where: { user_id: user.id } };
+    }
+
+    return paginate(query, this.companiesRepository, {
+      ...companyPaginateConfig,
+      ...additionalQuery,
+    });
   }
 
   async findById(id: string): Promise<Companies | undefined> {

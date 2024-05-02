@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsString, IsUUID } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateDepartmentDto {
@@ -7,17 +7,20 @@ export class CreateDepartmentDto {
   @IsString({ message: 'Nama department harus berupa teks' })
   department_name: string;
 
-  @ApiProperty({ description: 'Standar Gaji' })
-  @IsNotEmpty({ message: 'Standar gaji tidak boleh kosong' })
-  @IsNumber({}, { message: 'Standar gaji harus berupa angka' })
-  standart_salary: number;
-
-  @ApiProperty({
-    description: 'ID Perusahaan',
-  })
-  @IsNotEmpty({ message: 'ID perusahaan tidak boleh kosong' })
-  @IsUUID('4', { message: 'ID perusahaan harus berupa UUID versi 4' })
-  company_id: string;
+  @ApiProperty({ description: 'Gaji' })
+  @IsNotEmpty({ message: 'Gaji tidak boleh kosong' })
+  @IsNumber({}, { message: 'Gaji harus berupa angka' })
+  salary: number;
 }
 
-export class UpdateDepartmentDto extends CreateDepartmentDto {}
+export class UpdateDepartmentDto {
+  @ApiProperty({ description: 'Nama Department' })
+  @IsOptional()
+  @IsString({ message: 'Nama department harus berupa teks' })
+  department_name: string;
+
+  @ApiProperty({ description: 'Gaji' })
+  @IsOptional()
+  @IsNumber({}, { message: 'Gaji harus berupa angka' })
+  salary: number;
+}

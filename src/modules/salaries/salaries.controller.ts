@@ -1,53 +1,72 @@
 import {
-  Body,
   Controller,
-  Delete,
-  Get,
   Param,
-  Patch,
+  Body,
+  Get,
   Post,
+  Patch,
+  Delete,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
-import { AuthGuard } from '../../guards/auth.guard';
 import { SalariesService } from './salaries.service';
 import { Salaries } from './salaries.entity';
 import { CreateSalaryDto, UpdateSalaryDto } from './salaries.dto';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from '../../guards/auth.guard';
+import { SalariesPaginateConfig } from './salaries.paginate.config';
+import {
+  ApiPaginationQuery,
+  Paginate,
+  PaginateQuery,
+  Paginated,
+} from 'nestjs-paginate';
 
 @ApiTags('salaries')
 @ApiBearerAuth('access-token')
 @UseGuards(AuthGuard)
-@Controller('salaries')
+@Controller('company/:companyId/salaries')
 export class SalariesController {
   constructor(private readonly salariesService: SalariesService) {}
 
   @Get()
-  async findAll(): Promise<Salaries[]> {
-    return this.salariesService.findAll();
+  @ApiPaginationQuery(SalariesPaginateConfig)
+  async findAll(
+    @Param('companyId') companyId: string,
+    @Paginate() query: PaginateQuery,
+  ): Promise<Paginated<Salaries>> {
+    return this.salariesService.findAll(companyId, query);
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string): Promise<Salaries> {
-    return this.salariesService.findById(id);
+  async findOne(
+    @Param('companyId') companyId: string,
+    @Param('id') id: string,
+  ): Promise<Salaries> {
+    return this.salariesService.findById(companyId, id);
   }
 
   @Post()
-  @ApiBody({ type: CreateSalaryDto })
-  async create(@Body() body: CreateSalaryDto): Promise<Salaries> {
-    return this.salariesService.create(body);
+  async create(
+    @Param('companyId') companyId: string,
+    @Body() createSalaryDto: CreateSalaryDto,
+  ): Promise<Salaries> {
+    return this.salariesService.create(companyId, createSalaryDto);
   }
 
   @Patch(':id')
-  @ApiBody({ type: UpdateSalaryDto })
   async update(
+    @Param('companyId') companyId: string,
     @Param('id') id: string,
-    @Body() body: UpdateSalaryDto,
+    @Body() updateSalaryDto: UpdateSalaryDto,
   ): Promise<Salaries> {
-    return this.salariesService.update(id, body);
+    return this.salariesService.update(companyId, id, updateSalaryDto);
   }
 
   @Delete(':id')
-  async delete(@Param('id') id: string): Promise<void> {
-    return this.salariesService.delete(id);
+  async delete(
+    @Param('companyId') companyId: string,
+    @Param('id') id: string,
+  ): Promise<void> {
+    return this.salariesService.delete(companyId, id);
   }
 }

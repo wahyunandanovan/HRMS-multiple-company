@@ -3,7 +3,15 @@ import { AuthService } from './auth.service';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { LoginDto, RegisterDto } from './auth.dto';
 import { Response } from 'express';
-import { accessTokenCookieName } from 'src/constant/cookieName';
+import {
+  accessTokenCookieExperied,
+  accessTokenCookieName,
+} from 'src/constant/cookieConstant';
+
+const cookieOption = {
+  httpOnly: true,
+  maxAge: accessTokenCookieExperied,
+};
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -19,9 +27,7 @@ export class AuthController {
     const data: any = await this.authService.login(body);
     if (data) {
       const { access_token, message } = data.data;
-      response.cookie(accessTokenCookieName, access_token, {
-        httpOnly: true,
-      });
+      response.cookie(accessTokenCookieName, access_token, cookieOption);
       return { message };
     }
   }
@@ -36,9 +42,7 @@ export class AuthController {
     const data = await this.authService.register(username, email, password);
     if (data) {
       const { access_token, message } = data.data;
-      response.cookie(accessTokenCookieName, access_token, {
-        httpOnly: true,
-      });
+      response.cookie(accessTokenCookieName, access_token, cookieOption);
       return { message };
     }
   }

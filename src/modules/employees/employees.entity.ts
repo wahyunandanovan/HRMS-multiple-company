@@ -3,11 +3,10 @@ import {
   PrimaryGeneratedColumn,
   Column,
   ManyToOne,
-  OneToMany,
+  JoinColumn,
 } from 'typeorm';
 import { Departments } from '../departments/departments.entity';
-import { Leaves } from '../leaves/leaves.entity';
-import { Salaries } from '../salaries/salaries.entity';
+import { Companies } from '../companies/companies.entity';
 
 @Entity()
 export class Employees {
@@ -29,16 +28,21 @@ export class Employees {
   @Column({ nullable: true })
   address: string;
 
-  @ManyToOne(() => Departments, (department) => department.employees, {
+  @Column()
+  company_id: string;
+
+  @ManyToOne(() => Companies)
+  @JoinColumn({ name: 'company_id' })
+  company: Companies;
+
+  @Column({
     nullable: true,
   })
+  department_id: string;
+
+  @ManyToOne(() => Departments)
+  @JoinColumn({ name: 'department_id' })
   department: Departments;
-
-  @OneToMany(() => Leaves, (leave) => leave.employee, { nullable: true })
-  leaves: Leaves[];
-
-  @OneToMany(() => Salaries, (salary) => salary.employee, { nullable: true })
-  salaries: Salaries[];
 
   @Column({ default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;

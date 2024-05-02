@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Request,
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
@@ -28,6 +29,7 @@ import { CompanyPlan } from '../company-plan/company-plan.entity';
 import { RolesGuard } from '../../guards/roles.guard';
 import { Roles } from '../../guards/roles.decorator';
 import { UserRole } from '../users/role.enum';
+import { Request as ExpressRequest } from 'express';
 
 @ApiBearerAuth('access-token')
 @UseGuards(AuthGuard)
@@ -39,9 +41,10 @@ export class CompaniesController {
   @Get()
   @ApiPaginationQuery(companyPaginateConfig)
   async findAll(
+    @Request() req: ExpressRequest,
     @Paginate() query: PaginateQuery,
   ): Promise<Paginated<Companies>> {
-    return this.companiesService.findAll(query);
+    return this.companiesService.findAll(req, query);
   }
 
   @Get(':id')

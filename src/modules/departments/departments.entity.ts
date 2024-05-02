@@ -3,10 +3,9 @@ import {
   PrimaryGeneratedColumn,
   Column,
   ManyToOne,
-  OneToMany,
+  JoinColumn,
 } from 'typeorm';
 import { Companies } from '../companies/companies.entity';
-import { Employees } from '../employees/employees.entity';
 
 @Entity()
 export class Departments {
@@ -16,15 +15,16 @@ export class Departments {
   @Column()
   department_name: string;
 
-  @Column()
-  standart_salary: number;
+  @Column({ default: 0 })
+  salary: number;
 
-  @ManyToOne(() => Companies, (company) => company.departments)
+  @Column()
+  company_id: string;
+
+  @ManyToOne(() => Companies)
+  @JoinColumn({ name: 'company_id' })
   company: Companies;
 
   @Column({ default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
-
-  @OneToMany(() => Employees, (employee) => employee.department)
-  employees: Employees[];
 }

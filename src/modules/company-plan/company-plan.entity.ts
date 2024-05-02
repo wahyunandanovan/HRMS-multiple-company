@@ -44,4 +44,7 @@ export class CompanyPlan {
 
   @Column({ default: true })
   is_active: boolean;
+
+  @Column({ default: () => 'CURRENT_TIMESTAMP' })
+  created_at: Date;
 }

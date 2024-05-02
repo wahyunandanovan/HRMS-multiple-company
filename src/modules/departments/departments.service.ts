@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateDepartmentDto, UpdateDepartmentDto } from './departments.dto';
@@ -11,28 +15,60 @@ export class DepartmentsService {
     private readonly departmentRepository: Repository<Departments>,
   ) {}
 
-  async findAll(): Promise<Departments[]> {
-    return this.departmentRepository.find();
+  async findAll(companyId: string): Promise<Departments[]> {
+    return this.departmentRepository.find({ where: { company_id: companyId } });
   }
 
-  async findById(id: string): Promise<Departments | undefined> {
-    return this.departmentRepository.findOne({ where: { id } });
+  async findById(
+    companyId: string,
+    id: string,
+  ): Promise<Departments | undefined> {
+    return this.departmentRepository.findOne({
+      where: { company_id: companyId, id },
+    });
   }
 
-  async create(department: CreateDepartmentDto): Promise<Departments> {
-    const newDepartment = this.departmentRepository.create(department);
+  async create(
+    companyId: string,
+    department: CreateDepartmentDto,
+  ): Promise<Departments> {
+    const existingDepartmentName = await this.departmentRepository.findOne({
+      where: {
+        company_id: companyId,
+        department_name: department.department_name,
+      },
+    });
+    if (existingDepartmentName) {
+      throw new ConflictException('Nama department sudah dipakai');
+    }
+
+    const newDepartment = this.departmentRepository.create({
+      ...department,
+      company_id: companyId,
+    });
 
     return this.departmentRepository.save(newDepartment);
   }
 
   async update(
+    companyId: string,
     id: string,
     updateDepartment: UpdateDepartmentDto,
   ): Promise<Departments> {
-    const existingDepartment = await this.findById(id);
+    const existingDepartment = await this.findById(companyId, id);
+    const existingDepartmentName = await this.departmentRepository.findOne({
+      where: {
+        company_id: companyId,
+        department_name: updateDepartment.department_name,
+      },
+    });
 
     if (!existingDepartment) {
-      throw new NotFoundException('Department not found');
+      throw new NotFoundException(`Department dengan ${id} tidak ditemukan`);
+    }
+
+    if (existingDepartmentName) {
+      throw new ConflictException('Nama department sudah dipakai');
     }
 
     Object.assign(existingDepartment, updateDepartment);
@@ -40,13 +76,14 @@ export class DepartmentsService {
     return this.departmentRepository.save(existingDepartment);
   }
 
-  async delete(id: string): Promise<void> {
-    const existingDepartment = await this.findById(id);
+  async delete(companyId: string, id: string): Promise<{ message: string }> {
+    const existingDepartment = await this.findById(companyId, id);
 
     if (!existingDepartment) {
-      throw new NotFoundException('Department not found');
+      throw new NotFoundException(`Department dengan ${id} tidak ditemukan`);
     }
 
     await this.departmentRepository.remove(existingDepartment);
+    return { message: 'Berhasil dihapus' };
   }
 }
