@@ -140,10 +140,6 @@ export class CompaniesService {
       where: { id: companyId },
     });
 
-    const exitingFreeCompanyPlan = await this.companyPlanRepository.findOne({
-      where: { company_id: companyId, price: 0 },
-    });
-
     const selectedPlan = await this.planRepository.findOne({
       where: { id: selectedPlanId },
     });
@@ -156,7 +152,7 @@ export class CompaniesService {
       throw new NotFoundException('Plan tidak ditemukan');
     }
 
-    if (exitingFreeCompanyPlan && selectedPlan.price === 0) {
+    if (selectedPlan.price === 0) {
       throw new NotAcceptableException('Tidak dapat mengubah ke plan gratis');
     }
 
@@ -172,7 +168,7 @@ export class CompaniesService {
       reference_plan_id: selectedPlanId,
       company_id: companyId,
       start_date: new Date(),
-      end_date: body?.endDate,
+      end_date: endDate.toISOString() as any,
       is_active: true,
     });
 

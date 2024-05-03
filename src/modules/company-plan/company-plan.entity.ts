@@ -27,10 +27,10 @@ export class CompanyPlan {
   @JoinColumn({ name: 'reference_plan_id' })
   plan: Plans;
 
-  @Column({ type: 'date' })
+  @Column({ default: null, nullable: true })
   start_date: Date;
 
-  @Column({ type: 'date' })
+  @Column({ default: null, nullable: true })
   end_date: Date;
 
   @Column()

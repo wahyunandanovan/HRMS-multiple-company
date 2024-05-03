@@ -29,7 +29,11 @@ import { Plans } from './modules/plans/plan.entity';
 import { FilesModule } from './modules/files/files.module';
 import { CompanyPlanModule } from './modules/company-plan/company-plan.module';
 import { CompanyPlan } from './modules/company-plan/company-plan.entity';
+
+//midleware
 import { JwtMiddleware } from './middleware/jwt.middleware';
+import { CheckCompanyPlanMiddleware } from './middleware/check-company-plan.middleware';
+import { EmployeesController } from './modules/employees/employees.controller';
 
 @Module({
   imports: [
@@ -42,7 +46,6 @@ import { JwtMiddleware } from './middleware/jwt.middleware';
       password: process.env.DATABASE_PASSWORD,
       database: process.env.DATABASE_NAME,
       synchronize: true,
-
       entities: [
         Users,
         Plans,
@@ -54,6 +57,7 @@ import { JwtMiddleware } from './middleware/jwt.middleware';
         CompanyPlan,
       ],
     }),
+    TypeOrmModule.forFeature([CompanyPlan, Employees]),
     ScheduleModule.forRoot(),
     CronModule,
     SeederModule,
@@ -74,5 +78,6 @@ import { JwtMiddleware } from './middleware/jwt.middleware';
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(JwtMiddleware).forRoutes('*');
+    consumer.apply(CheckCompanyPlanMiddleware).forRoutes(EmployeesController);
   }
 }
