@@ -17,10 +17,10 @@ export class JwtMiddleware implements NestMiddleware {
       try {
         const decodedToken = jwt.verify(accessToken, jwtConstants.secret);
         req['user'] = decodedToken;
-        const { method, baseUrl, user } = req;
+        const { method, path, user } = req;
         fs.appendFileSync(
           'public/request.log',
-          `${JSON.stringify({ baseUrl, method, user })}\n`,
+          `${JSON.stringify({ path, method, user })}\n`,
         );
       } catch (error) {
         throw new UnauthorizedException('Token tidak valid');

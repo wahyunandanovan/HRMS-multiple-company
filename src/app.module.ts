@@ -30,10 +30,14 @@ import { FilesModule } from './modules/files/files.module';
 import { CompanyPlanModule } from './modules/company-plan/company-plan.module';
 import { CompanyPlan } from './modules/company-plan/company-plan.entity';
 
-//midleware
+//midleware,controller
 import { JwtMiddleware } from './middleware/jwt.middleware';
-import { CheckCompanyPlanMiddleware } from './middleware/check-company-plan.middleware';
 import { EmployeesController } from './modules/employees/employees.controller';
+import { CompanyPlanMiddleware } from './middleware/company-plan.middleware';
+import { SalariesController } from './modules/salaries/salaries.controller';
+import { LeavesController } from './modules/leaves/leaves.controller';
+import { DepartmentsController } from './modules/departments/departments.controller';
+import { CompanyPlanController } from './modules/company-plan/company-plan.controller';
 
 @Module({
   imports: [
@@ -78,6 +82,14 @@ import { EmployeesController } from './modules/employees/employees.controller';
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(JwtMiddleware).forRoutes('*');
-    consumer.apply(CheckCompanyPlanMiddleware).forRoutes(EmployeesController);
+    consumer
+      .apply(CompanyPlanMiddleware)
+      .forRoutes(
+        EmployeesController,
+        SalariesController,
+        LeavesController,
+        DepartmentsController,
+        CompanyPlanController,
+      );
   }
 }

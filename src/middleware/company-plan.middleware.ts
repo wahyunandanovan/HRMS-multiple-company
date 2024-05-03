@@ -11,7 +11,7 @@ import { Employees } from 'src/modules/employees/employees.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
-export class CheckCompanyPlanMiddleware implements NestMiddleware {
+export class CompanyPlanMiddleware implements NestMiddleware {
   constructor(
     @InjectRepository(CompanyPlan)
     private repository: Repository<CompanyPlan>,
