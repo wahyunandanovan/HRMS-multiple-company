@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsBoolean, IsOptional, Matches } from 'class-validator';
+import { IsNotEmpty, IsBoolean, IsOptional, IsDate } from 'class-validator';
 
 export class CreateCompanyPlanDto {
   @ApiProperty()
@@ -10,18 +10,14 @@ export class CreateCompanyPlanDto {
   @IsNotEmpty({ message: 'Reference plan id tidak boleh kosong' })
   reference_plan_id: string;
 
-  @ApiProperty()
+  @ApiProperty({ description: 'Tanggal Mulai', example: '2024-03-08' })
   @IsNotEmpty({ message: 'Tanggal mulai tidak boleh kosong' })
-  @Matches(/^\d{4}-\d{2}-\d{2}$/, {
-    message: 'Format tanggal harus yyyy-mm-dd',
-  })
+  @IsDate({ message: 'Format tanggal tidak valid' })
   start_date: Date;
 
-  @ApiProperty()
+  @ApiProperty({ description: 'Tanggal Selesai', example: '2024-03-08' })
   @IsNotEmpty({ message: 'Tanggal selesai tidak boleh kosong' })
-  @Matches(/^\d{4}-\d{2}-\d{2}$/, {
-    message: 'Format tanggal harus yyyy-mm-dd',
-  })
+  @IsDate({ message: 'Format tanggal tidak valid' })
   end_date: Date;
 
   @ApiProperty({ default: true })
@@ -31,19 +27,17 @@ export class CreateCompanyPlanDto {
 }
 
 export class UpdateCompanyPlanDto {
-  @ApiProperty({ default: '2024-04-30' })
-  @Matches(/^\d{4}-\d{2}-\d{2}$/, {
-    message: 'Format tanggal harus yyyy-mm-dd',
-  })
+  @ApiProperty({ description: 'Tanggal Mulai', example: '2024-03-08' })
+  @IsNotEmpty({ message: 'Tanggal mulai tidak boleh kosong' })
   @IsOptional()
-  start_date: string;
+  @IsDate({ message: 'Format tanggal tidak valid' })
+  start_date: Date;
 
-  @ApiProperty({ default: '2024-04-30' })
-  @Matches(/^\d{4}-\d{2}-\d{2}$/, {
-    message: 'Format tanggal harus yyyy-mm-dd',
-  })
+  @ApiProperty({ description: 'Tanggal Selesai', example: '2024-03-08' })
+  @IsNotEmpty({ message: 'Tanggal selesai tidak boleh kosong' })
   @IsOptional()
-  end_date: string;
+  @IsDate({ message: 'Format tanggal tidak valid' })
+  end_date: Date;
 
   @ApiProperty({ default: true })
   @IsOptional()

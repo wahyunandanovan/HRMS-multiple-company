@@ -1,62 +1,69 @@
 import {
-  Body,
   Controller,
-  Delete,
-  Get,
   Param,
-  Patch,
+  Body,
+  Get,
   Post,
+  Patch,
+  Delete,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
-import { AuthGuard } from '../../guards/auth.guard';
 import { LeavesService } from './leaves.service';
-import { Leaves } from './leaves.entity';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from '../../guards/auth.guard';
 import { CreateLeaveDto, UpdateLeaveDto } from './leaves.dto';
-import { LeaveType } from './leaves.enum';
+import { LeavePaginateConfig } from './leave.paginate.config';
+import {
+  ApiPaginationQuery,
+  Paginate,
+  PaginateQuery,
+  Paginated,
+} from 'nestjs-paginate';
+import { Leaves } from './leaves.entity';
 
 @ApiTags('leaves')
 @ApiBearerAuth('access-token')
 @UseGuards(AuthGuard)
-@Controller('leaves')
+@Controller('company/:companyId/leaves')
 export class LeavesController {
   constructor(private readonly leavesService: LeavesService) {}
 
   @Get()
-  async findAll(): Promise<Leaves[]> {
-    return this.leavesService.findAll();
-  }
-
-  @Get('/leave-type')
-  getAllLeaveTypes(): string[] {
-    const leaveTypes = Object.values(LeaveType).filter(
-      (value) => typeof value === 'string',
-    ) as string[];
-    return leaveTypes;
+  @ApiPaginationQuery(LeavePaginateConfig)
+  async findAll(
+    @Param('companyId') companyId: string,
+    @Paginate() query: PaginateQuery,
+  ): Promise<Paginated<Leaves>> {
+    return this.leavesService.findAll(companyId, query);
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string): Promise<Leaves> {
-    return this.leavesService.findById(id);
+  async findOne(
+    @Param('companyId') companyId: string,
+    @Param('id') id: string,
+  ) {
+    return this.leavesService.findOneByCompanyId(companyId, id);
   }
 
   @Post()
-  @ApiBody({ type: CreateLeaveDto })
-  async create(@Body() body: CreateLeaveDto): Promise<Leaves> {
-    return this.leavesService.create(body);
+  async create(
+    @Param('companyId') companyId: string,
+    @Body() createLeaveDto: CreateLeaveDto,
+  ) {
+    return this.leavesService.create(companyId, createLeaveDto);
   }
 
   @Patch(':id')
-  @ApiBody({ type: UpdateLeaveDto })
   async update(
+    @Param('companyId') companyId: string,
     @Param('id') id: string,
-    @Body() body: UpdateLeaveDto,
-  ): Promise<Leaves> {
-    return this.leavesService.update(id, body);
+    @Body() updateLeaveDto: UpdateLeaveDto,
+  ) {
+    return this.leavesService.update(companyId, id, updateLeaveDto);
   }
 
   @Delete(':id')
-  async delete(@Param('id') id: string): Promise<void> {
-    return this.leavesService.delete(id);
+  async delete(@Param('companyId') companyId: string, @Param('id') id: string) {
+    return this.leavesService.delete(companyId, id);
   }
 }

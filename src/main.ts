@@ -10,6 +10,7 @@ import * as express from 'express';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { apiVersion } from './constant/apiVersion';
 import { appConstant } from './constant/appConstant';
+import { limiter } from './helper/limiter';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -22,6 +23,7 @@ async function bootstrap() {
   app.use(express.json());
   app.setGlobalPrefix(`/api/${apiVersion}/`);
   app.use('/public', express.static(join(__dirname, '..', 'public')));
+  app.use(limiter);
   app.useGlobalPipes(
     new ValidationPipe({
       validatorPackage: require('@nestjs/class-validator'),

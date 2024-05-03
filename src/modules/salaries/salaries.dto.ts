@@ -39,6 +39,14 @@ export class CreateSalaryDto {
 }
 
 export class UpdateSalaryDto {
+  @ApiProperty({
+    description: 'Employee ID',
+  })
+  @IsOptional()
+  @IsNotEmpty({ message: 'Employee ID tidak boleh kosong' })
+  @IsUUID('4', { message: 'Employee ID harus UUID versi 4' })
+  employee_id: string;
+
   @ApiProperty({ description: 'Jumlah Gaji', example: 4100000 })
   @IsNumber({}, { message: 'Jumlah gaji harus berupa angka' })
   @IsOptional()
