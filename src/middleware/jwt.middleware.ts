@@ -20,7 +20,12 @@ export class JwtMiddleware implements NestMiddleware {
         const { method, path, user } = req;
         fs.appendFileSync(
           'public/request.log',
-          `${JSON.stringify({ path, method, user })}\n`,
+          `${JSON.stringify({
+            date: new Date().toISOString(),
+            path,
+            method,
+            user,
+          })}\n`,
         );
       } catch (error) {
         throw new UnauthorizedException('Token tidak valid');

@@ -53,14 +53,12 @@ export class AuthService {
     const { email, password } = body;
     const user = await this.usersService.findByEmail(email);
     if (!user) {
-      throw new UnauthorizedException(
-        `Pengguna dengan email ${email} tidak ditemukan!`,
-      );
+      throw new UnauthorizedException(`Pengguna tidak ditemukan!`);
     }
     const isPasswordValid = await compareSync(password, user.password);
 
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Password salah!');
+      throw new UnauthorizedException('Pengguna tidak ditemukan!');
     }
 
     const jwtValue = {
