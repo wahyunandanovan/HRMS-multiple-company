@@ -17,9 +17,10 @@ async function bootstrap() {
   const port = process.env.PORT || 8080;
 
   app.enableCors({
-    allowedHeaders: '*',
-    origin: '*',
+    origin: ['http://localhost:3000', 'https://piawai.id'],
+    credentials: true,
   });
+
   app.use(express.json());
   app.setGlobalPrefix(`/api/${apiVersion}/`);
   app.use('/public', express.static(join(__dirname, '..', 'public')));

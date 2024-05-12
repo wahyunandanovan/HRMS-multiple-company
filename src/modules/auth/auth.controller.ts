@@ -2,13 +2,13 @@ import { Controller, Post, Body, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { LoginDto, RegisterDto } from './auth.dto';
-import { Response } from 'express';
+import { CookieOptions, Response } from 'express';
 import {
   accessTokenCookieExperied,
   accessTokenCookieName,
 } from 'src/constant/cookieConstant';
 
-const cookieOption = {
+const cookieOption: CookieOptions = {
   httpOnly: true,
   maxAge: accessTokenCookieExperied,
 };
