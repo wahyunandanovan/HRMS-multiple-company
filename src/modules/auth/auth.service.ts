@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import { compareSync } from 'bcrypt';
@@ -27,6 +31,12 @@ export class AuthService {
     email: string,
     password: string,
   ): Promise<any> {
+    const exiting = await this.usersService.findByEmail(email);
+
+    if (exiting) {
+      throw new ConflictException(`Email ${email} sudah dipakai`);
+    }
+
     const user = await this.usersService.create({
       username,
       password,
