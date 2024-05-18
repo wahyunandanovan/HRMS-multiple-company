@@ -34,12 +34,11 @@ export class ErrorFilter<T> implements ExceptionFilter {
     }
 
     response.status(statusCode).json({
-      error: {
-        timestamp: new Date().toISOString(),
-        path: request.url,
-        statusCode,
-        message,
-      },
+      status: 'error',
+      timestamp: new Date().toISOString(),
+      path: request.url,
+      statusCode,
+      message,
     });
   }
 }

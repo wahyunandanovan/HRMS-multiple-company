@@ -52,10 +52,8 @@ export class AuthService {
     };
 
     return {
-      data: {
-        message: 'Berhasil mendaftar!',
-        access_token: this.jwtService.sign(value),
-      },
+      message: 'Berhasil mendaftar!',
+      access_token: this.jwtService.sign(value),
     };
   }
 
@@ -79,10 +77,8 @@ export class AuthService {
     };
 
     return {
-      data: {
-        message: 'Berhasil masuk!',
-        access_token: this.jwtService.sign(jwtValue),
-      },
+      message: 'Berhasil masuk!',
+      access_token: this.jwtService.sign(jwtValue),
     };
   }
 }

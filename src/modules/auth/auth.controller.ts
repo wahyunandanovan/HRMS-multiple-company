@@ -1,17 +1,7 @@
-import { Controller, Post, Body, Res } from '@nestjs/common';
+import { Controller, Post, Body } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { LoginDto, RegisterDto } from './auth.dto';
-import { CookieOptions, Response } from 'express';
-import {
-  accessTokenCookieExperied,
-  accessTokenCookieName,
-} from 'src/constant/cookieConstant';
-
-const cookieOption: CookieOptions = {
-  httpOnly: true,
-  maxAge: accessTokenCookieExperied,
-};
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -20,30 +10,15 @@ export class AuthController {
 
   @ApiBody({ type: LoginDto })
   @Post('login')
-  async login(
-    @Body() body: LoginDto,
-    @Res({ passthrough: true }) response: Response,
-  ) {
-    const data: any = await this.authService.login(body);
-    if (data) {
-      const { access_token, message } = data.data;
-      response.cookie(accessTokenCookieName, access_token, cookieOption);
-      return { message };
-    }
+  async login(@Body() body: LoginDto) {
+    return await this.authService.login(body);
   }
 
   @ApiBody({ type: RegisterDto })
   @Post('register')
-  async register(
-    @Body() body: RegisterDto,
-    @Res({ passthrough: true }) response: Response,
-  ) {
+  async register(@Body() body: RegisterDto) {
     const { username, email, password } = body;
     const data = await this.authService.register(username, email, password);
-    if (data) {
-      const { access_token, message } = data.data;
-      response.cookie(accessTokenCookieName, access_token, cookieOption);
-      return { message };
-    }
+    return data;
   }
 }
